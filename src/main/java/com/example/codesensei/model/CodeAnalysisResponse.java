@@ -2,60 +2,128 @@ package com.example.codesensei.model;
 
 import java.util.List;
 
-/**
- * DTO returned by /api/code/analyze.
- * Holds AI explanation, suggestions and results from static analyzers.
- */
 public class CodeAnalysisResponse {
-    private String aiExplanation;               // textual AI explanation of code
-    private List<String> suggestions;           // AI improvement suggestions
-    private List<String> pmdResults;            // PMD findings
-    private List<String> checkstyleResults;     // Checkstyle findings
-    private List<String> spotBugsResults;   
+
     private double score;
-    private String improvedCode;    // SpotBugs findings
 
-    public CodeAnalysisResponse() {}
+    private String summary;
 
-    public CodeAnalysisResponse(String aiExplanation, List<String> suggestions,
-                                List<String> pmdResults, List<String> checkstyleResults,
-                                List<String> spotBugsResults) {
-        this.aiExplanation = aiExplanation;
-        this.suggestions = suggestions;
-        this.pmdResults = pmdResults;
-        this.checkstyleResults = checkstyleResults;
-        this.spotBugsResults = spotBugsResults;
+    private List<String> bugs;
+
+    private List<String> codeSmells;
+
+    private List<String> performanceIssues;
+
+    private List<String> securityIssues;
+
+    private List<String> improvements;
+
+    private String improvedCode;
+
+    private List<String> learningTips;
+
+    private List<String> pmdResults;
+
+    private List<String> checkstyleResults;
+
+    private List<String> spotBugsResults;
+
+    public CodeAnalysisResponse() {
     }
 
-    // Getters / setters
-    public String getAiExplanation() { return aiExplanation; }
-    public void setAiExplanation(String aiExplanation) { this.aiExplanation = aiExplanation; }
-
-    public List<String> getSuggestions() { return suggestions; }
-    public void setSuggestions(List<String> suggestions) { this.suggestions = suggestions; }
-
-    public List<String> getPmdResults() { return pmdResults; }
-    public void setPmdResults(List<String> pmdResults) { this.pmdResults = pmdResults; }
-
-    public List<String> getCheckstyleResults() { return checkstyleResults; }
-    public void setCheckstyleResults(List<String> checkstyleResults) { this.checkstyleResults = checkstyleResults; }
-
-    public List<String> getSpotBugsResults() { return spotBugsResults; }
-    public void setSpotBugsResults(List<String> spotBugsResults) { this.spotBugsResults = spotBugsResults; }
-
     public double getScore() {
-    return score;
-}
+        return score;
+    }
 
-public void setScore(double score) {
-    this.score = score;
-}
+    public void setScore(double score) {
+        this.score = score;
+    }
 
-public String getImprovedCode() {
-    return improvedCode;
-}
+    public String getSummary() {
+        return summary;
+    }
 
-public void setImprovedCode(String improvedCode) {
-    this.improvedCode = improvedCode;
-}
+    public void setSummary(String summary) {
+        this.summary = summary;
+    }
+
+    public List<String> getBugs() {
+        return bugs;
+    }
+
+    public void setBugs(List<String> bugs) {
+        this.bugs = bugs;
+    }
+
+    public List<String> getCodeSmells() {
+        return codeSmells;
+    }
+
+    public void setCodeSmells(List<String> codeSmells) {
+        this.codeSmells = codeSmells;
+    }
+
+    public List<String> getPerformanceIssues() {
+        return performanceIssues;
+    }
+
+    public void setPerformanceIssues(List<String> performanceIssues) {
+        this.performanceIssues = performanceIssues;
+    }
+
+    public List<String> getSecurityIssues() {
+        return securityIssues;
+    }
+
+    public void setSecurityIssues(List<String> securityIssues) {
+        this.securityIssues = securityIssues;
+    }
+
+    public List<String> getImprovements() {
+        return improvements;
+    }
+
+    public void setImprovements(List<String> improvements) {
+        this.improvements = improvements;
+    }
+
+    public String getImprovedCode() {
+        return improvedCode;
+    }
+
+    public void setImprovedCode(String improvedCode) {
+        this.improvedCode = improvedCode;
+    }
+
+    public List<String> getLearningTips() {
+        return learningTips;
+    }
+
+    public void setLearningTips(List<String> learningTips) {
+        this.learningTips = learningTips;
+    }
+
+    public List<String> getPmdResults() {
+        return pmdResults;
+    }
+
+    public void setPmdResults(List<String> pmdResults) {
+        this.pmdResults = pmdResults;
+    }
+
+    public List<String> getCheckstyleResults() {
+        return checkstyleResults;
+    }
+
+    public void setCheckstyleResults(List<String> checkstyleResults) {
+        this.checkstyleResults = checkstyleResults;
+    }
+
+    public List<String> getSpotBugsResults() {
+        return spotBugsResults;
+    }
+
+    public void setSpotBugsResults(List<String> spotBugsResults) {
+        this.spotBugsResults = spotBugsResults;
+    }
 }
