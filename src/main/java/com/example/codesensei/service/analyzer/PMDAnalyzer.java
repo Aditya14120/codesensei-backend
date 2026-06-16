@@ -14,6 +14,11 @@ public class PMDAnalyzer {
 
         try {
 
+            if (code == null || code.trim().isEmpty()) {
+                issues.add("[PMD] Code is empty.");
+                return issues;
+            }
+
             // Basic custom analysis rules
 
             if (code.contains("System.out.println")) {

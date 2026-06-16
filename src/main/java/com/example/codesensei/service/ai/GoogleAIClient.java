@@ -1,18 +1,25 @@
 package com.example.codesensei.service.ai;
 
 import com.example.codesensei.model.AiReview;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 @Component
 public class GoogleAIClient {
+
+    private static final Logger log = LoggerFactory.getLogger(GoogleAIClient.class);
 
     private final WebClient webClient;
 
@@ -89,44 +96,105 @@ CODE:
 
         try {
 
-            Map<?, ?> response = webClient.post()
+            String response = webClient.post()
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(request)
                     .retrieve()
-                    .bodyToMono(Map.class)
+                    .bodyToMono(String.class)
+                    .timeout(Duration.ofSeconds(30))
                     .block();
 
-            List<?> candidates = (List<?>) response.get("candidates");
+            String json = extractJson(extractCandidateText(response));
 
-            if (candidates == null || candidates.isEmpty()) {
-                throw new RuntimeException("No AI candidates returned");
-            }
-
-            Map<?, ?> candidate = (Map<?, ?>) candidates.get(0);
-
-            Map<?, ?> content = (Map<?, ?>) candidate.get("content");
-
-            List<?> parts = (List<?>) content.get("parts");
-
-            Map<?, ?> part = (Map<?, ?>) parts.get(0);
-
-            String json = part.get("text").toString();
-
-            json = json.replace("```json", "")
-                    .replace("```", "")
-                    .trim();
-
-            return mapper.readValue(json, AiReview.class);
+            return withDefaults(mapper.readValue(json, AiReview.class), code);
 
         } catch (Exception e) {
 
-            AiReview error = new AiReview();
-
-            error.setScore(0);
-
-            error.setSummary("AI analysis failed: " + e.getMessage());
-
-            return error;
+            log.warn("Gemini analysis failed: {}", e.getMessage());
+            return fallbackReview(code, "AI analysis failed: " + e.getMessage());
         }
+    }
+
+    public String getCodeExplanation(String code) {
+        return getCodeReview(code).getSummary();
+    }
+
+    private String extractCandidateText(String responseBody) throws Exception {
+
+        if (responseBody == null || responseBody.trim().isEmpty()) {
+            throw new IllegalStateException("Empty AI response");
+        }
+
+        JsonNode root = mapper.readTree(responseBody);
+        JsonNode textNode = root.path("candidates")
+                .path(0)
+                .path("content")
+                .path("parts")
+                .path(0)
+                .path("text");
+
+        if (textNode.isMissingNode() || textNode.asText().trim().isEmpty()) {
+            throw new IllegalStateException("No AI candidate text returned");
+        }
+
+        return textNode.asText();
+    }
+
+    private String extractJson(String text) {
+
+        String cleaned = text.replace("```json", "")
+                .replace("```", "")
+                .trim();
+
+        int start = cleaned.indexOf('{');
+        int end = cleaned.lastIndexOf('}');
+
+        if (start < 0 || end <= start) {
+            throw new IllegalStateException("AI response did not contain a JSON object");
+        }
+
+        return cleaned.substring(start, end + 1);
+    }
+
+    private AiReview withDefaults(AiReview review, String code) {
+
+        AiReview safe = review != null ? review : new AiReview();
+
+        safe.setScore(Math.max(0, Math.min(10, safe.getScore())));
+        safe.setSummary(defaultString(safe.getSummary(), "AI analysis completed."));
+        safe.setBugs(defaultList(safe.getBugs()));
+        safe.setCodeSmells(defaultList(safe.getCodeSmells()));
+        safe.setPerformanceIssues(defaultList(safe.getPerformanceIssues()));
+        safe.setSecurityIssues(defaultList(safe.getSecurityIssues()));
+        safe.setImprovements(defaultList(safe.getImprovements()));
+        safe.setImprovedCode(defaultString(safe.getImprovedCode(), code));
+        safe.setLearningTips(defaultList(safe.getLearningTips()));
+
+        return safe;
+    }
+
+    private AiReview fallbackReview(String code, String summary) {
+
+        AiReview fallback = new AiReview();
+
+        fallback.setScore(0);
+        fallback.setSummary(summary);
+        fallback.setBugs(Collections.emptyList());
+        fallback.setCodeSmells(Collections.emptyList());
+        fallback.setPerformanceIssues(Collections.emptyList());
+        fallback.setSecurityIssues(Collections.emptyList());
+        fallback.setImprovements(Collections.emptyList());
+        fallback.setImprovedCode(code);
+        fallback.setLearningTips(Collections.emptyList());
+
+        return fallback;
+    }
+
+    private List<String> defaultList(List<String> values) {
+        return values == null ? Collections.emptyList() : values;
+    }
+
+    private String defaultString(String value, String fallback) {
+        return value == null || value.trim().isEmpty() ? fallback : value;
     }
 }

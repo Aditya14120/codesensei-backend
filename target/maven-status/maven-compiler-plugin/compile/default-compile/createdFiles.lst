@@ -21,9 +21,11 @@ com\example\codesensei\controller\AuthController.class
 com\example\codesensei\controller\CodeAnalysisController.class
 com\example\codesensei\model\CodeFile.class
 com\example\codesensei\service\CodeAnalysisService.class
+com\example\codesensei\exception\ApiErrorResponse.class
 com\example\codesensei\service\analyzer\CheckstyleAnalyzer.class
 com\example\codesensei\repository\AnalysisReportRepository.class
 com\example\codesensei\CodesenseiBackendApplication.class
 com\example\codesensei\config\AppUserDetailsService.class
+com\example\codesensei\exception\GlobalExceptionHandler.class
 com\example\codesensei\entity\AnalysisReport$AnalysisReportBuilder.class
 com\example\codesensei\entity\AnalysisReport.class

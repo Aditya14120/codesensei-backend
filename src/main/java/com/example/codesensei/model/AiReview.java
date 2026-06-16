@@ -1,5 +1,6 @@
 package com.example.codesensei.model;
 
+import java.util.Collections;
 import java.util.List;
 
 public class AiReview {
@@ -23,6 +24,12 @@ public class AiReview {
     private List<String> learningTips;
 
     public AiReview() {
+        this.bugs = Collections.emptyList();
+        this.codeSmells = Collections.emptyList();
+        this.performanceIssues = Collections.emptyList();
+        this.securityIssues = Collections.emptyList();
+        this.improvements = Collections.emptyList();
+        this.learningTips = Collections.emptyList();
     }
 
     public double getScore() {
@@ -46,7 +53,7 @@ public class AiReview {
     }
 
     public void setBugs(List<String> bugs) {
-        this.bugs = bugs;
+        this.bugs = bugs != null ? bugs : Collections.emptyList();
     }
 
     public List<String> getCodeSmells() {
@@ -54,7 +61,7 @@ public class AiReview {
     }
 
     public void setCodeSmells(List<String> codeSmells) {
-        this.codeSmells = codeSmells;
+        this.codeSmells = codeSmells != null ? codeSmells : Collections.emptyList();
     }
 
     public List<String> getPerformanceIssues() {
@@ -62,7 +69,7 @@ public class AiReview {
     }
 
     public void setPerformanceIssues(List<String> performanceIssues) {
-        this.performanceIssues = performanceIssues;
+        this.performanceIssues = performanceIssues != null ? performanceIssues : Collections.emptyList();
     }
 
     public List<String> getSecurityIssues() {
@@ -70,7 +77,7 @@ public class AiReview {
     }
 
     public void setSecurityIssues(List<String> securityIssues) {
-        this.securityIssues = securityIssues;
+        this.securityIssues = securityIssues != null ? securityIssues : Collections.emptyList();
     }
 
     public List<String> getImprovements() {
@@ -78,7 +85,7 @@ public class AiReview {
     }
 
     public void setImprovements(List<String> improvements) {
-        this.improvements = improvements;
+        this.improvements = improvements != null ? improvements : Collections.emptyList();
     }
 
     public String getImprovedCode() {
@@ -94,6 +101,6 @@ public class AiReview {
     }
 
     public void setLearningTips(List<String> learningTips) {
-        this.learningTips = learningTips;
+        this.learningTips = learningTips != null ? learningTips : Collections.emptyList();
     }
 }

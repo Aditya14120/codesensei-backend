@@ -1,5 +1,6 @@
 E:\codesensei-backend-template\codesensei-backend-template\src\main\java\com\example\codesensei\service\AuthService.java
 E:\codesensei-backend-template\codesensei-backend-template\src\main\java\com\example\codesensei\service\CodeAnalysisService.java
+E:\codesensei-backend-template\codesensei-backend-template\src\main\java\com\example\codesensei\exception\GlobalExceptionHandler.java
 E:\codesensei-backend-template\codesensei-backend-template\src\main\java\com\example\codesensei\model\CodeAnalysisResponse.java
 E:\codesensei-backend-template\codesensei-backend-template\src\main\java\com\example\codesensei\service\ai\GoogleAIClient.java
 E:\codesensei-backend-template\codesensei-backend-template\src\main\java\com\example\codesensei\repository\UserRepository.java
@@ -10,6 +11,7 @@ E:\codesensei-backend-template\codesensei-backend-template\src\main\java\com\exa
 E:\codesensei-backend-template\codesensei-backend-template\src\main\java\com\example\codesensei\service\ReportService.java
 E:\codesensei-backend-template\codesensei-backend-template\src\main\java\com\example\codesensei\CodesenseiBackendApplication.java
 E:\codesensei-backend-template\codesensei-backend-template\src\main\java\com\example\codesensei\controller\CodeAnalysisController.java
+E:\codesensei-backend-template\codesensei-backend-template\src\main\java\com\example\codesensei\exception\ApiErrorResponse.java
 E:\codesensei-backend-template\codesensei-backend-template\src\main\java\com\example\codesensei\model\AiReview.java
 E:\codesensei-backend-template\codesensei-backend-template\src\main\java\com\example\codesensei\repository\AnalysisReportRepository.java
 E:\codesensei-backend-template\codesensei-backend-template\src\main\java\com\example\codesensei\controller\CodeFileController.java

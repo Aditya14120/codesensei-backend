@@ -1,0 +1,5 @@
+# Created at 2026-06-12T22:12:51.411
+Boot Manifest-JAR contains absolute paths in classpath 'E:\codesensei-backend-template\codesensei-backend-template\target\test-classes'
+Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+'other' has different root
+

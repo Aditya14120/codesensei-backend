@@ -1,8 +1,13 @@
 package com.example.codesensei.model;
 
+import java.util.Collections;
 import java.util.List;
 
 public class CodeAnalysisResponse {
+
+    private String aiExplanation;
+
+    private List<String> suggestions;
 
     private double score;
 
@@ -29,6 +34,44 @@ public class CodeAnalysisResponse {
     private List<String> spotBugsResults;
 
     public CodeAnalysisResponse() {
+        this.bugs = Collections.emptyList();
+        this.codeSmells = Collections.emptyList();
+        this.performanceIssues = Collections.emptyList();
+        this.securityIssues = Collections.emptyList();
+        this.improvements = Collections.emptyList();
+        this.suggestions = Collections.emptyList();
+        this.learningTips = Collections.emptyList();
+        this.pmdResults = Collections.emptyList();
+        this.checkstyleResults = Collections.emptyList();
+        this.spotBugsResults = Collections.emptyList();
+    }
+
+    public CodeAnalysisResponse(String aiExplanation, List<String> suggestions,
+            List<String> pmdResults, List<String> checkstyleResults, List<String> spotBugsResults) {
+        this();
+        this.aiExplanation = aiExplanation;
+        this.summary = aiExplanation;
+        setSuggestions(suggestions);
+        setImprovements(suggestions);
+        setPmdResults(pmdResults);
+        setCheckstyleResults(checkstyleResults);
+        setSpotBugsResults(spotBugsResults);
+    }
+
+    public String getAiExplanation() {
+        return aiExplanation;
+    }
+
+    public void setAiExplanation(String aiExplanation) {
+        this.aiExplanation = aiExplanation;
+    }
+
+    public List<String> getSuggestions() {
+        return suggestions;
+    }
+
+    public void setSuggestions(List<String> suggestions) {
+        this.suggestions = suggestions != null ? suggestions : Collections.emptyList();
     }
 
     public double getScore() {
@@ -45,6 +88,7 @@ public class CodeAnalysisResponse {
 
     public void setSummary(String summary) {
         this.summary = summary;
+        this.aiExplanation = summary;
     }
 
     public List<String> getBugs() {
@@ -52,7 +96,7 @@ public class CodeAnalysisResponse {
     }
 
     public void setBugs(List<String> bugs) {
-        this.bugs = bugs;
+        this.bugs = bugs != null ? bugs : Collections.emptyList();
     }
 
     public List<String> getCodeSmells() {
@@ -60,7 +104,7 @@ public class CodeAnalysisResponse {
     }
 
     public void setCodeSmells(List<String> codeSmells) {
-        this.codeSmells = codeSmells;
+        this.codeSmells = codeSmells != null ? codeSmells : Collections.emptyList();
     }
 
     public List<String> getPerformanceIssues() {
@@ -68,7 +112,7 @@ public class CodeAnalysisResponse {
     }
 
     public void setPerformanceIssues(List<String> performanceIssues) {
-        this.performanceIssues = performanceIssues;
+        this.performanceIssues = performanceIssues != null ? performanceIssues : Collections.emptyList();
     }
 
     public List<String> getSecurityIssues() {
@@ -76,7 +120,7 @@ public class CodeAnalysisResponse {
     }
 
     public void setSecurityIssues(List<String> securityIssues) {
-        this.securityIssues = securityIssues;
+        this.securityIssues = securityIssues != null ? securityIssues : Collections.emptyList();
     }
 
     public List<String> getImprovements() {
@@ -84,7 +128,8 @@ public class CodeAnalysisResponse {
     }
 
     public void setImprovements(List<String> improvements) {
-        this.improvements = improvements;
+        this.improvements = improvements != null ? improvements : Collections.emptyList();
+        this.suggestions = this.improvements;
     }
 
     public String getImprovedCode() {
@@ -100,7 +145,7 @@ public class CodeAnalysisResponse {
     }
 
     public void setLearningTips(List<String> learningTips) {
-        this.learningTips = learningTips;
+        this.learningTips = learningTips != null ? learningTips : Collections.emptyList();
     }
 
     public List<String> getPmdResults() {
@@ -108,7 +153,7 @@ public class CodeAnalysisResponse {
     }
 
     public void setPmdResults(List<String> pmdResults) {
-        this.pmdResults = pmdResults;
+        this.pmdResults = pmdResults != null ? pmdResults : Collections.emptyList();
     }
 
     public List<String> getCheckstyleResults() {
@@ -116,7 +161,7 @@ public class CodeAnalysisResponse {
     }
 
     public void setCheckstyleResults(List<String> checkstyleResults) {
-        this.checkstyleResults = checkstyleResults;
+        this.checkstyleResults = checkstyleResults != null ? checkstyleResults : Collections.emptyList();
     }
 
     public List<String> getSpotBugsResults() {
@@ -124,6 +169,6 @@ public class CodeAnalysisResponse {
     }
 
     public void setSpotBugsResults(List<String> spotBugsResults) {
-        this.spotBugsResults = spotBugsResults;
+        this.spotBugsResults = spotBugsResults != null ? spotBugsResults : Collections.emptyList();
     }
 }
