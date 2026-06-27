@@ -7,6 +7,7 @@ com\example\codesensei\model\CodeAnalysisResponse.class
 com\example\codesensei\service\analyzer\PMDAnalyzer.class
 com\example\codesensei\model\AiReview.class
 com\example\codesensei\service\impl\AuthServiceImpl.class
+application.properties
 com\example\codesensei\service\CodeFileService.class
 com\example\codesensei\service\ai\GoogleAIClient.class
 com\example\codesensei\service\AuthService.class
