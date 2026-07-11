@@ -7,6 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -50,6 +53,29 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleBadRequest(IllegalArgumentException ex,
             HttpServletRequest request) {
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request, null);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiErrorResponse> handleBadCredentials(BadCredentialsException ex,
+            HttpServletRequest request) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, "Invalid email or password", request, null);
+    }
+
+    // Catches auth failures raised inside controller/service methods (e.g. by @PreAuthorize).
+    // Failures at the filter-chain level, before the request reaches a controller, are handled
+    // by SecurityConfig's authenticationEntryPoint instead, since this advice never sees those.
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiErrorResponse> handleAuthentication(AuthenticationException ex,
+            HttpServletRequest request) {
+        return buildResponse(HttpStatus.UNAUTHORIZED,
+                "Authentication required, or the token is missing/invalid/expired", request, null);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiErrorResponse> handleAccessDenied(AccessDeniedException ex,
+            HttpServletRequest request) {
+        return buildResponse(HttpStatus.FORBIDDEN, "You do not have permission to perform this action", request,
+                null);
     }
 
     @ExceptionHandler(Exception.class)

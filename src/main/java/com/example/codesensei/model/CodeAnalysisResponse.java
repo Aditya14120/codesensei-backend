@@ -7,6 +7,11 @@ public class CodeAnalysisResponse {
 
     private String aiExplanation;
 
+    private String language;
+
+    /** The code as submitted, so the frontend can render a before/after diff against improvedCode. */
+    private String originalCode;
+
     private List<String> suggestions;
 
     private double score;
@@ -64,6 +69,22 @@ public class CodeAnalysisResponse {
 
     public void setAiExplanation(String aiExplanation) {
         this.aiExplanation = aiExplanation;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public String getOriginalCode() {
+        return originalCode;
+    }
+
+    public void setOriginalCode(String originalCode) {
+        this.originalCode = originalCode;
     }
 
     public List<String> getSuggestions() {

@@ -3,8 +3,8 @@ package com.example.codesensei.service;
 import com.example.codesensei.entity.User;
 import com.example.codesensei.model.AiReview;
 import com.example.codesensei.model.CodeAnalysisResponse;
-import com.example.codesensei.repository.UserRepository;
-import com.example.codesensei.service.ai.GoogleAIClient;
+import com.example.codesensei.model.SupportedLanguage;
+import com.example.codesensei.service.ai.GroqAIClient;
 import com.example.codesensei.service.analyzer.CheckstyleAnalyzer;
 import com.example.codesensei.service.analyzer.PMDAnalyzer;
 import com.example.codesensei.service.analyzer.SpotBugsAnalyzer;
@@ -35,40 +35,41 @@ public class CodeAnalysisService {
     private CheckstyleAnalyzer checkstyleAnalyzer;
 
     @Autowired
-    private GoogleAIClient googleAIClient;
+    private GroqAIClient groqAIClient;
 
     @Autowired
     private ReportService reportService;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    public CodeAnalysisResponse analyzeCode(String code) {
+    public CodeAnalysisResponse analyzeCode(String code, String languageId, User currentUser) {
 
         if (code == null || code.trim().isEmpty()) {
             throw new IllegalArgumentException("Code is required");
         }
 
+        SupportedLanguage language = SupportedLanguage.fromId(languageId);
+
         CodeAnalysisResponse response = new CodeAnalysisResponse();
+        response.setLanguage(language.getId());
+        response.setOriginalCode(code);
 
         try {
 
             response.setPmdResults(
                     pmdAnalyzer != null
-                            ? pmdAnalyzer.analyze(code)
+                            ? pmdAnalyzer.analyze(code, language)
                             : Collections.singletonList("PMD not configured"));
 
             response.setCheckstyleResults(
                     checkstyleAnalyzer != null
-                            ? checkstyleAnalyzer.analyze(code)
+                            ? checkstyleAnalyzer.analyze(code, language)
                             : Collections.singletonList("Checkstyle not configured"));
 
             response.setSpotBugsResults(
                     spotBugsAnalyzer != null
-                            ? spotBugsAnalyzer.analyze(code)
+                            ? spotBugsAnalyzer.analyze(code, language)
                             : Collections.singletonList("SpotBugs not configured"));
 
-            AiReview aiReview = normalizeAiReview(googleAIClient.getCodeReview(code), code);
+            AiReview aiReview = normalizeAiReview(groqAIClient.getCodeReview(code, language), code);
 
             response.setScore(
                     calculateFinalScore(response, aiReview.getScore()));
@@ -89,7 +90,7 @@ public class CodeAnalysisService {
 
             response.setLearningTips(aiReview.getLearningTips());
 
-            saveReport(response);
+            saveReport(response, language, currentUser);
 
         } catch (Exception e) {
 
@@ -211,30 +212,21 @@ public class CodeAnalysisService {
         return value == null || value.trim().isEmpty() ? fallback : value;
     }
 
-    private void saveReport(CodeAnalysisResponse response) {
+    private void saveReport(CodeAnalysisResponse response, SupportedLanguage language, User currentUser) {
 
         try {
 
-            User user = userRepository.findAll()
-                    .stream()
-                    .findFirst()
-                    .orElse(null);
+            if (currentUser != null) {
 
-            if (user != null) {
-
-                var savedReport = reportService.saveReport(
-                        "CodeSnippet.java",
-                        response.getSummary(),
-                        response.getImprovements() != null ? response.getImprovements().toString() : "[]",
-                        user);
+                var savedReport = reportService.saveReport(language, response, currentUser);
 
                 if (savedReport != null && savedReport.getId() != null) {
-                    log.info("Analysis report persisted with id {}", savedReport.getId());
+                    log.info("Analysis report persisted with id {} for user {}", savedReport.getId(), currentUser.getId());
                 } else {
                     log.warn("Analysis report persistence returned without an id");
                 }
             } else {
-                log.info("Skipping report persistence because no user exists");
+                log.info("Skipping report persistence because no authenticated user is present");
             }
 
         } catch (Exception e) {

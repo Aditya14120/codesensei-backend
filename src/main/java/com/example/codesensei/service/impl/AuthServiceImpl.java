@@ -1,9 +1,11 @@
 package com.example.codesensei.service.impl;
 
+import com.example.codesensei.dto.auth.AuthResponse;
 import com.example.codesensei.dto.auth.LoginRequest;
 import com.example.codesensei.dto.auth.RegisterRequest;
 import com.example.codesensei.entity.User;
 import com.example.codesensei.repository.UserRepository;
+import com.example.codesensei.security.JwtUtil;
 import com.example.codesensei.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,12 +17,13 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     @Override
-    public User register(RegisterRequest request) {
+    public AuthResponse register(RegisterRequest request) {
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already exists");
+            throw new IllegalArgumentException("Email already exists");
         }
 
         User user = User.builder()
@@ -30,19 +33,26 @@ public class AuthServiceImpl implements AuthService {
                 .role("ROLE_USER")
                 .build();
 
-        return userRepository.save(user);
+        User saved = userRepository.save(user);
+
+        return toAuthResponse(saved);
     }
 
     @Override
-    public User login(LoginRequest request) {
+    public AuthResponse login(LoginRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid password");
+            throw new IllegalArgumentException("Invalid password");
         }
 
-        return user;
+        return toAuthResponse(user);
+    }
+
+    private AuthResponse toAuthResponse(User user) {
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());
+        return new AuthResponse(user.getId(), user.getName(), user.getEmail(), user.getRole(), token);
     }
 }
