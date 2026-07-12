@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface AnalysisReportRepository extends JpaRepository<AnalysisReport, String> {
@@ -17,4 +18,7 @@ public interface AnalysisReportRepository extends JpaRepository<AnalysisReport, 
     // Scoping by owner in the query itself (not a post-fetch check) means a caller can never
     // even attempt to load another user's report by guessing its id.
     Optional<AnalysisReport> findByIdAndUser(String id, User user);
+
+    // Unpaginated and newest-first, for aggregating a user's full history into the skill radar.
+    List<AnalysisReport> findByUserOrderByCreatedAtDesc(User user);
 }

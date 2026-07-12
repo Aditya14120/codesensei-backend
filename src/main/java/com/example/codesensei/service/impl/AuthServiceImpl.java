@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -49,6 +51,12 @@ public class AuthServiceImpl implements AuthService {
         }
 
         return toAuthResponse(user);
+    }
+
+    @Override
+    public void logout(User user) {
+        user.setTokensValidAfter(Instant.now());
+        userRepository.save(user);
     }
 
     private AuthResponse toAuthResponse(User user) {

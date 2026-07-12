@@ -2,6 +2,7 @@ package com.example.codesensei.config;
 
 import com.example.codesensei.exception.ApiErrorResponse;
 import com.example.codesensei.security.JwtAuthFilter;
+import com.example.codesensei.security.RateLimitFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,6 +29,7 @@ import java.time.Instant;
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final RateLimitFilter rateLimitFilter;
     private final CorsConfigurationSource corsConfigurationSource;
     private final ObjectMapper objectMapper;
 
@@ -39,7 +41,12 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/api/auth/**").permitAll()
+                    // Deliberately not a "/api/auth/**" wildcard — /api/auth/logout must stay
+                    // authenticated (it revokes tokens for whoever the JWT says the caller is).
+                    .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                    // Passport verification is meant to be opened by anyone holding the shared
+                    // link (e.g. a recruiter), not just the report's owner — see ReportController.
+                    .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/reports/verify/**").permitAll()
                     .anyRequest().authenticated()
             )
             .exceptionHandling(handling -> handling
@@ -48,7 +55,8 @@ public class SecurityConfig {
             )
             .formLogin(form -> form.disable())
             .httpBasic(httpBasic -> httpBasic.disable())
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(rateLimitFilter, JwtAuthFilter.class);
 
         return http.build();
     }

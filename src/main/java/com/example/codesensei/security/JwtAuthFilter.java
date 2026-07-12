@@ -1,6 +1,7 @@
 package com.example.codesensei.security;
 
 import com.example.codesensei.config.AppUserDetailsService;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.Instant;
 
 /**
  * Runs once per request: reads the Bearer token, validates its signature and
@@ -52,10 +54,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String token = header.substring(BEARER_PREFIX.length());
 
         try {
-            String email = jwtUtil.parseClaims(token).getSubject();
+            Claims claims = jwtUtil.parseClaims(token);
+            String email = claims.getSubject();
 
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+
+                if (isRevoked(userDetails, claims)) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
 
                 var authToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
@@ -72,5 +80,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    /** True if this token was issued before the user's last logout (see AuthService.logout). */
+    private boolean isRevoked(UserDetails userDetails, Claims claims) {
+        if (!(userDetails instanceof CustomUserDetails customUserDetails)) {
+            return false;
+        }
+
+        Instant tokensValidAfter = customUserDetails.getUser().getTokensValidAfter();
+        if (tokensValidAfter == null) {
+            return false;
+        }
+
+        Instant issuedAt = claims.getIssuedAt() != null ? claims.getIssuedAt().toInstant() : null;
+        return issuedAt == null || issuedAt.isBefore(tokensValidAfter);
     }
 }

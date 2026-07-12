@@ -12,6 +12,9 @@ public class CodeAnalysisResponse {
     /** The code as submitted, so the frontend can render a before/after diff against improvedCode. */
     private String originalCode;
 
+    /** Review tone this analysis ran with: "PROFESSIONAL" or "ROAST". */
+    private String mode;
+
     private List<String> suggestions;
 
     private double score;
@@ -38,6 +41,8 @@ public class CodeAnalysisResponse {
 
     private List<String> spotBugsResults;
 
+    private List<LineComplexity> complexityHeatmap;
+
     public CodeAnalysisResponse() {
         this.bugs = Collections.emptyList();
         this.codeSmells = Collections.emptyList();
@@ -49,6 +54,7 @@ public class CodeAnalysisResponse {
         this.pmdResults = Collections.emptyList();
         this.checkstyleResults = Collections.emptyList();
         this.spotBugsResults = Collections.emptyList();
+        this.complexityHeatmap = Collections.emptyList();
     }
 
     public CodeAnalysisResponse(String aiExplanation, List<String> suggestions,
@@ -85,6 +91,14 @@ public class CodeAnalysisResponse {
 
     public void setOriginalCode(String originalCode) {
         this.originalCode = originalCode;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
     }
 
     public List<String> getSuggestions() {
@@ -191,5 +205,13 @@ public class CodeAnalysisResponse {
 
     public void setSpotBugsResults(List<String> spotBugsResults) {
         this.spotBugsResults = spotBugsResults != null ? spotBugsResults : Collections.emptyList();
+    }
+
+    public List<LineComplexity> getComplexityHeatmap() {
+        return complexityHeatmap;
+    }
+
+    public void setComplexityHeatmap(List<LineComplexity> complexityHeatmap) {
+        this.complexityHeatmap = complexityHeatmap != null ? complexityHeatmap : Collections.emptyList();
     }
 }

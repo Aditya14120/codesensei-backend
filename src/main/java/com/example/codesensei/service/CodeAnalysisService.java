@@ -3,9 +3,11 @@ package com.example.codesensei.service;
 import com.example.codesensei.entity.User;
 import com.example.codesensei.model.AiReview;
 import com.example.codesensei.model.CodeAnalysisResponse;
+import com.example.codesensei.model.ReviewMode;
 import com.example.codesensei.model.SupportedLanguage;
 import com.example.codesensei.service.ai.GroqAIClient;
 import com.example.codesensei.service.analyzer.CheckstyleAnalyzer;
+import com.example.codesensei.service.analyzer.ComplexityHeatmapAnalyzer;
 import com.example.codesensei.service.analyzer.PMDAnalyzer;
 import com.example.codesensei.service.analyzer.SpotBugsAnalyzer;
 
@@ -40,17 +42,26 @@ public class CodeAnalysisService {
     @Autowired
     private ReportService reportService;
 
+    @Autowired
+    private ComplexityHeatmapAnalyzer complexityHeatmapAnalyzer;
+
     public CodeAnalysisResponse analyzeCode(String code, String languageId, User currentUser) {
+        return analyzeCode(code, languageId, currentUser, null);
+    }
+
+    public CodeAnalysisResponse analyzeCode(String code, String languageId, User currentUser, String modeId) {
 
         if (code == null || code.trim().isEmpty()) {
             throw new IllegalArgumentException("Code is required");
         }
 
         SupportedLanguage language = SupportedLanguage.fromId(languageId);
+        ReviewMode mode = ReviewMode.fromId(modeId);
 
         CodeAnalysisResponse response = new CodeAnalysisResponse();
         response.setLanguage(language.getId());
         response.setOriginalCode(code);
+        response.setMode(mode.name());
 
         try {
 
@@ -68,6 +79,8 @@ public class CodeAnalysisService {
                     spotBugsAnalyzer != null
                             ? spotBugsAnalyzer.analyze(code, language)
                             : Collections.singletonList("SpotBugs not configured"));
+
+            response.setComplexityHeatmap(complexityHeatmapAnalyzer.analyze(code, language));
 
             AiReview aiReview = normalizeAiReview(groqAIClient.getCodeReview(code, language), code);
 
@@ -210,6 +223,22 @@ public class CodeAnalysisService {
 
     private String defaultString(String value, String fallback) {
         return value == null || value.trim().isEmpty() ? fallback : value;
+    }
+
+    public String translateCode(String code, String sourceLanguageId, String targetLanguageId) {
+
+        if (code == null || code.trim().isEmpty()) {
+            throw new IllegalArgumentException("Code is required");
+        }
+
+        SupportedLanguage source = SupportedLanguage.fromId(sourceLanguageId);
+        SupportedLanguage target = SupportedLanguage.fromId(targetLanguageId);
+
+        if (source == target) {
+            throw new IllegalArgumentException("Source and target language must be different");
+        }
+
+        return groqAIClient.translateCode(code, source, target);
     }
 
     private void saveReport(CodeAnalysisResponse response, SupportedLanguage language, User currentUser) {

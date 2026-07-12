@@ -2,6 +2,9 @@ package com.example.codesensei.controller;
 
 import com.example.codesensei.dto.report.AnalysisReportDetailResponse;
 import com.example.codesensei.dto.report.AnalysisReportSummaryResponse;
+import com.example.codesensei.dto.report.CategoryScores;
+import com.example.codesensei.dto.report.PassportVerificationResponse;
+import com.example.codesensei.dto.report.SkillRadarResponse;
 import com.example.codesensei.entity.AnalysisReport;
 import com.example.codesensei.model.CodeAnalysisResponse;
 import com.example.codesensei.security.CustomUserDetails;
@@ -65,6 +68,26 @@ public class ReportController {
 
         AnalysisReport report = reportService.getUserReportById(principal.getUser(), id);
         return ResponseEntity.ok(toDetail(report));
+    }
+
+    @GetMapping("/skill-radar")
+    public ResponseEntity<SkillRadarResponse> getSkillRadar(@AuthenticationPrincipal CustomUserDetails principal) {
+        return ResponseEntity.ok(reportService.getSkillRadar(principal.getUser()));
+    }
+
+    @GetMapping("/{id}/category-scores")
+    public ResponseEntity<CategoryScores> getCategoryScores(
+            @AuthenticationPrincipal CustomUserDetails principal,
+            @PathVariable String id) {
+        return ResponseEntity.ok(reportService.getCategoryScoresForReport(principal.getUser(), id));
+    }
+
+    // Public — no @AuthenticationPrincipal, no owner check. Backs the shareable Code Quality
+    // Passport's verification link, so it deliberately returns only non-sensitive fields
+    // (see PassportVerificationResponse) rather than the full report.
+    @GetMapping("/verify/{id}")
+    public ResponseEntity<PassportVerificationResponse> verifyReport(@PathVariable String id) {
+        return ResponseEntity.ok(reportService.verifyReport(id));
     }
 
     private AnalysisReportSummaryResponse toSummary(AnalysisReport report) {

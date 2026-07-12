@@ -15,6 +15,9 @@ public class CodeAnalysisRequest {
     /** Source language: java, python, c, or cpp. Defaults to java if omitted. */
     private String language;
 
+    /** Review tone: "professional" (default) or "roast". Defaults to professional if omitted/unrecognized. */
+    private String mode;
+
     public CodeAnalysisRequest() {}
 
     public CodeAnalysisRequest(String code) { this.code = code; }
@@ -29,6 +32,9 @@ public class CodeAnalysisRequest {
 
     public String getLanguage() { return language; }
     public void setLanguage(String language) { this.language = language; }
+
+    public String getMode() { return mode; }
+    public void setMode(String mode) { this.mode = mode; }
 
     @Override
     public String toString() {
